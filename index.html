@@ -71,15 +71,20 @@
       cursor:pointer; color:white;
       background: linear-gradient(90deg, var(--pink), var(--pink2));
       box-shadow: 0 14px 28px rgba(255,77,136,.24);
-      transition: .18s transform, .18s box-shadow;
+      transition: .18s transform, .18s box-shadow, .18s opacity;
     }
     .btn:hover{ transform: translateY(-1px); box-shadow: 0 18px 34px rgba(255,77,136,.28); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
     .btn.secondary{
       background: rgba(255,255,255,.8);
       color: var(--muted);
       border:1px solid rgba(255,77,136,.18);
       box-shadow: 0 10px 20px rgba(0,0,0,.04);
     }
+
+    /* ---------- Views ---------- */
+    .view{ display:none; }
+    .view.active{ display:block; }
 
     /* ---------- Gift + pass ---------- */
     .ticketStage{
@@ -277,16 +282,186 @@
       border-radius: 6px;
     }
 
-    /* Print only the pass nicely */
-    @media print{
-      body{ background:white !important; }
-      header, .hint, .ctaRow, .gift{ display:none !important; }
-      .panel{ box-shadow:none !important; border:none !important; background:white !important; padding:0 !important; }
-      .boardingPass{ box-shadow:none !important; border: 1px solid #ddd !important; }
+    /* ---------- Departure animation ---------- */
+    .departStage{
+      min-height: 460px;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      position:relative;
     }
 
-    @media (max-width:520px){
-      .panel{ padding:14px; }
+    .sky{
+      width: min(780px, 100%);
+      height: 360px;
+      border-radius: 22px;
+      position:relative;
+      overflow:hidden;
+      border: 1px solid rgba(255,77,136,.16);
+      background:
+        radial-gradient(900px 420px at 20% 30%, rgba(255,255,255,.55), transparent 55%),
+        radial-gradient(560px 340px at 80% 40%, rgba(255,255,255,.45), transparent 55%),
+        linear-gradient(180deg, rgba(255,77,136,.14), rgba(255,255,255,.60));
+      box-shadow: 0 18px 45px rgba(255,77,136,.12);
+    }
+
+    .cloud{
+      position:absolute;
+      top: 40px;
+      left: -160px;
+      width: 160px;
+      height: 60px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.75);
+      filter: blur(.2px);
+      opacity:.85;
+      box-shadow: 0 18px 35px rgba(255,77,136,.08);
+      animation: cloudDrift 14s linear infinite;
+    }
+    .cloud::before, .cloud::after{
+      content:"";
+      position:absolute;
+      background: rgba(255,255,255,.78);
+      width: 70px; height: 70px;
+      border-radius: 999px;
+      top: -25px; left: 22px;
+    }
+    .cloud::after{
+      width: 90px; height: 90px;
+      top: -40px; left: 70px;
+      background: rgba(255,255,255,.72);
+    }
+    .cloud.c2{ top: 110px; opacity:.7; transform: scale(.9); animation-duration: 18s; }
+    .cloud.c3{ top: 210px; opacity:.6; transform: scale(.75); animation-duration: 22s; }
+    @keyframes cloudDrift{
+      0%{ transform: translateX(-80px) }
+      100%{ transform: translateX(980px) }
+    }
+
+    .runway{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height: 120px;
+      background: linear-gradient(180deg, rgba(122,93,106,.10), rgba(58,44,52,.14));
+    }
+    .runway::before{
+      content:"";
+      position:absolute;
+      left:0; right:0;
+      top: 22px;
+      height: 2px;
+      background: rgba(255,255,255,.45);
+    }
+    .runway::after{
+      content:"";
+      position:absolute;
+      left: 50%;
+      top: 54px;
+      transform: translateX(-50%);
+      width: 58%;
+      height: 4px;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,.65) 0 16px,
+        transparent 16px 34px
+      );
+      opacity:.75;
+      border-radius:999px;
+    }
+
+    .planeWrap{
+      position:absolute;
+      left: -160px;
+      bottom: 54px;
+      width: 220px;
+      height: 90px;
+      transform-origin: 40px 50px;
+    }
+
+    /* Cute side-profile plane built with divs */
+    .plane{
+      position:absolute;
+      left:0; top:0;
+      width: 210px;
+      height: 80px;
+      transform: translateX(0) rotate(0deg);
+    }
+    .body{
+      position:absolute;
+      left: 20px; top: 22px;
+      width: 150px; height: 36px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(255,77,136,.18);
+      box-shadow: 0 12px 28px rgba(255,77,136,.10);
+    }
+    .nose{
+      position:absolute;
+      left: 10px; top: 26px;
+      width: 36px; height: 28px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(255,77,136,.18);
+    }
+    .tail{
+      position:absolute;
+      left: 160px; top: 18px;
+      width: 40px; height: 44px;
+      border-radius: 12px 18px 18px 12px;
+      background: linear-gradient(180deg, rgba(255,77,136,.50), rgba(255,119,168,.45));
+      border:1px solid rgba(255,77,136,.20);
+      transform: skewX(-12deg);
+    }
+    .wing{
+      position:absolute;
+      left: 80px; top: 42px;
+      width: 60px; height: 22px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, rgba(255,77,136,.35), rgba(255,119,168,.25));
+      border:1px solid rgba(255,77,136,.18);
+      transform: skewX(-18deg);
+    }
+    .window{
+      position:absolute;
+      top: 34px;
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: rgba(58,44,52,.25);
+    }
+    .w1{ left: 62px; } .w2{ left: 78px; } .w3{ left: 94px; } .w4{ left: 110px; } .w5{ left: 126px; }
+
+    .heartJet{
+      position:absolute;
+      left: -10px;
+      top: 44px;
+      font-size: 14px;
+      opacity: 0;
+    }
+
+    /* When "depart" is clicked, animate plane */
+    .departStage.go .planeWrap{
+      animation: takeoff 2.8s cubic-bezier(.2,.9,.2,1) forwards;
+    }
+    .departStage.go .heartJet{
+      animation: jetPuffs 2.8s ease-out forwards;
+    }
+    @keyframes takeoff{
+      0%   { transform: translateX(0) translateY(0) rotate(0deg); }
+      35%  { transform: translateX(380px) translateY(0) rotate(0deg); }
+      55%  { transform: translateX(520px) translateY(-22px) rotate(-6deg); }
+      100% { transform: translateX(980px) translateY(-180px) rotate(-10deg); }
+    }
+    @keyframes jetPuffs{
+      0%{ opacity:0; transform: translateX(0) scale(.9); }
+      10%{ opacity:1; }
+      100%{ opacity:0; transform: translateX(-140px) scale(1.25); }
+    }
+
+    .miniText{
+      text-align:center;
+      font-weight:900;
+      color: var(--muted);
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -294,104 +469,158 @@
   <div class="app">
     <header>
       <h1>March 7th in Rome ✨</h1>
-      <p class="subtitle">Tap the gift. The boarding pass will appear.</p>
+      <p class="subtitle">Tap the gift. Reveal the boarding pass. Then press <b>Depart</b>.</p>
     </header>
 
     <section class="panel">
-      <p class="hint">Tap the gift to reveal your boarding pass ✈️💘</p>
+      <!-- VIEW 1: Ticket -->
+      <div class="view active" id="view-ticket">
+        <p class="hint">Tap the gift to reveal your boarding pass ✈️💘</p>
 
-      <div class="ticketStage" id="ticketStage">
-        <button class="gift" id="giftBtn" type="button" aria-label="Open gift">
-          <span class="giftLid"></span>
-          <span class="giftBox"></span>
-          <span class="giftRibbon"></span>
-          <span class="giftTag">tap me</span>
-        </button>
+        <div class="ticketStage" id="ticketStage">
+          <button class="gift" id="giftBtn" type="button" aria-label="Open gift">
+            <span class="giftLid"></span>
+            <span class="giftBox"></span>
+            <span class="giftRibbon"></span>
+            <span class="giftTag">tap me</span>
+          </button>
 
-        <div class="boardingWrap" id="boardingWrap" aria-hidden="true">
-          <div class="boardingPass" id="boardingPass">
-            <div class="bpTop">
-              <div class="bpAirline">Halley’s Comet ✨</div>
-              <div class="bpType">BOARDING PASS</div>
+          <div class="boardingWrap" id="boardingWrap" aria-hidden="true">
+            <div class="boardingPass" id="boardingPass">
+              <div class="bpTop">
+                <div class="bpAirline">Halley’s Comet ✨</div>
+                <div class="bpType">BOARDING PASS</div>
+              </div>
+
+              <div class="bpGrid">
+                <div class="bpField">
+                  <div class="bpLabel">Passenger</div>
+                  <div class="bpValue">Milana</div>
+                </div>
+                <div class="bpField">
+                  <div class="bpLabel">Flight</div>
+                  <div class="bpValue">Halley’s Comet</div>
+                </div>
+
+                <div class="bpField">
+                  <div class="bpLabel">From</div>
+                  <div class="bpValue">Wherever you are</div>
+                </div>
+                <div class="bpField">
+                  <div class="bpLabel">To</div>
+                  <div class="bpValue">Our Next Chapter</div>
+                </div>
+
+                <div class="bpField">
+                  <div class="bpLabel">Date</div>
+                  <div class="bpValue">07 MAR</div>
+                </div>
+                <div class="bpField">
+                  <div class="bpLabel">Boarding</div>
+                  <div class="bpValue">All day 💗</div>
+                </div>
+
+                <div class="bpField">
+                  <div class="bpLabel">Gate</div>
+                  <div class="bpValue">ROME</div>
+                </div>
+                <div class="bpField">
+                  <div class="bpLabel">Seat</div>
+                  <div class="bpValue">0703</div>
+                </div>
+              </div>
+
+              <div class="bpBottom">
+                <div class="bpNote">
+                  Final call for the love of my life.
+                  <span class="bpTiny">No destination — just us.</span>
+                </div>
+                <div class="bpQR" aria-hidden="true">
+                  <div class="qrBlock"></div><div class="qrBlock"></div><div class="qrBlock"></div>
+                  <div class="qrBlock"></div><div class="qrBlock"></div><div class="qrBlock"></div>
+                  <div class="qrBlock"></div><div class="qrBlock"></div><div class="qrBlock"></div>
+                </div>
+              </div>
             </div>
 
-            <div class="bpGrid">
-              <div class="bpField">
-                <div class="bpLabel">Passenger</div>
-                <div class="bpValue" id="bpPassenger">Milana</div>
-              </div>
-              <div class="bpField">
-                <div class="bpLabel">Flight</div>
-                <div class="bpValue" id="bpFlight">Halley’s Comet</div>
-              </div>
-
-              <div class="bpField">
-                <div class="bpLabel">From</div>
-                <div class="bpValue" id="bpFrom">Wherever you are</div>
-              </div>
-              <div class="bpField">
-                <div class="bpLabel">To</div>
-                <div class="bpValue" id="bpTo">Our Next Chapter</div>
-              </div>
-
-              <div class="bpField">
-                <div class="bpLabel">Date</div>
-                <div class="bpValue" id="bpDate">07 MAR</div>
-              </div>
-              <div class="bpField">
-                <div class="bpLabel">Boarding</div>
-                <div class="bpValue" id="bpBoarding">All day 💗</div>
-              </div>
-
-              <div class="bpField">
-                <div class="bpLabel">Gate</div>
-                <div class="bpValue" id="bpGate">ROME</div>
-              </div>
-              <div class="bpField">
-                <div class="bpLabel">Seat</div>
-                <div class="bpValue" id="bpSeat">0703</div>
-              </div>
-            </div>
-
-            <div class="bpBottom">
-              <div class="bpNote">
-                Final call for the love of my life.
-                <span class="bpTiny">No destination — just us.</span>
-              </div>
-              <div class="bpQR" aria-hidden="true">
-                <div class="qrBlock"></div><div class="qrBlock"></div><div class="qrBlock"></div>
-                <div class="qrBlock"></div><div class="qrBlock"></div><div class="qrBlock"></div>
-                <div class="qrBlock"></div><div class="qrBlock"></div><div class="qrBlock"></div>
-              </div>
+            <div class="ctaRow">
+              <button class="btn secondary" id="resetTicket" type="button">Reset</button>
+              <button class="btn secondary" id="printTicket" type="button">Print / Save</button>
+              <button class="btn" id="departBtn" type="button">Depart ✈️</button>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div class="ctaRow">
-            <button class="btn secondary" id="resetTicket" type="button">Reset</button>
-            <button class="btn" id="printTicket" type="button">Print / Save</button>
+      <!-- VIEW 2: Departure animation -->
+      <div class="view" id="view-depart">
+        <p class="hint">Fasten your seatbelt 💗</p>
+
+        <div class="departStage" id="departStage">
+          <div class="sky" aria-hidden="true">
+            <div class="cloud c1"></div>
+            <div class="cloud c2"></div>
+            <div class="cloud c3"></div>
+
+            <div class="planeWrap" id="planeWrap" aria-hidden="true">
+              <div class="plane">
+                <div class="nose"></div>
+                <div class="body"></div>
+                <div class="tail"></div>
+                <div class="wing"></div>
+                <span class="window w1"></span>
+                <span class="window w2"></span>
+                <span class="window w3"></span>
+                <span class="window w4"></span>
+                <span class="window w5"></span>
+                <div class="heartJet" id="heartJet">💘💘💘</div>
+              </div>
+            </div>
+
+            <div class="runway"></div>
           </div>
+        </div>
+
+        <div class="miniText" id="departText">Departing to our next chapter…</div>
+
+        <div class="ctaRow">
+          <button class="btn secondary" id="backBtn" type="button">Back</button>
+          <button class="btn" id="replayBtn" type="button">Replay</button>
         </div>
       </div>
     </section>
   </div>
 
   <script>
+    // Views
+    const viewTicket = document.getElementById("view-ticket");
+    const viewDepart = document.getElementById("view-depart");
+
+    function show(which){
+      viewTicket.classList.toggle("active", which === "ticket");
+      viewDepart.classList.toggle("active", which === "depart");
+    }
+
+    // Ticket elements
     const ticketStage = document.getElementById("ticketStage");
     const giftBtn = document.getElementById("giftBtn");
     const boardingWrap = document.getElementById("boardingWrap");
     const resetTicket = document.getElementById("resetTicket");
     const printTicket = document.getElementById("printTicket");
+    const departBtn = document.getElementById("departBtn");
 
     function openGift(){
       ticketStage.classList.add("open");
       boardingWrap.setAttribute("aria-hidden", "false");
       giftBtn.disabled = true;
+      departBtn.disabled = false;
     }
 
     function resetGift(){
       ticketStage.classList.remove("open");
       boardingWrap.setAttribute("aria-hidden", "true");
       giftBtn.disabled = false;
+      departBtn.disabled = true;
     }
 
     giftBtn.addEventListener("click", openGift);
@@ -400,6 +629,34 @@
     printTicket.addEventListener("click", () => {
       if (!ticketStage.classList.contains("open")) openGift();
       window.print();
+    });
+
+    // Disable depart until opened
+    departBtn.disabled = true;
+
+    // Departure animation
+    const departStage = document.getElementById("departStage");
+    const backBtn = document.getElementById("backBtn");
+    const replayBtn = document.getElementById("replayBtn");
+
+    function runDepart(){
+      show("depart");
+      // restart animation by toggling class
+      departStage.classList.remove("go");
+      void departStage.offsetWidth; // reflow
+      departStage.classList.add("go");
+    }
+
+    departBtn.addEventListener("click", runDepart);
+
+    backBtn.addEventListener("click", () => {
+      show("ticket");
+    });
+
+    replayBtn.addEventListener("click", () => {
+      departStage.classList.remove("go");
+      void departStage.offsetWidth;
+      departStage.classList.add("go");
     });
   </script>
 </body>
