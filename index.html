@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Boarding Pass Surprise ✈️</title>
+  <style>
+    :root{
+      --bg1:#ffe6ef;
+      --bg2:#fff7fb;
+      --ink:#3a2c34;
+      --muted:#7a5d6a;
+      --pink:#ff4d88;
+      --pink2:#ff77a8;
+      --shadow: 0 18px 45px rgba(255,77,136,.18);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      min-height:100vh;
+      background:
+        radial-gradient(1200px 800px at 30% 10%, #ffd3e3 0%, transparent 60%),
+        radial-gradient(900px 700px at 80% 30%, #ffd9ee 0%, transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      display:flex;
+      justify-content:center;
+      padding:28px 14px 60px;
+    }
+    .app{ width:min(860px, 100%); }
+    header{ text-align:center; margin-bottom:18px; }
+    h1{
+      margin:10px 0 8px;
+      font-size:clamp(26px, 4vw, 38px);
+      line-height:1.1;
+      letter-spacing:-.02em;
+    }
+    .subtitle{
+      margin:0 auto; max-width:62ch;
+      color:var(--muted);
+      font-size:16px; line-height:1.5;
+    }
+
+    .panel{
+      margin-top:18px;
+      background:rgba(255,255,255,.72);
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(255,77,136,.15);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      padding:18px;
+    }
+
+    .hint{
+      text-align:center;
+      color:var(--muted);
+      margin:0 0 12px;
+      font-weight:800;
+    }
+
+    .ctaRow{
+      display:flex; justify-content:center; gap:10px;
+      margin-top:16px; flex-wrap:wrap;
+    }
+    .btn{
+      border:0; border-radius:999px;
+      padding:12px 18px; font-weight:900;
+      cursor:pointer; color:white;
+      background: linear-gradient(90deg, var(--pink), var(--pink2));
+      box-shadow: 0 14px 28px rgba(255,77,136,.24);
+      transition: .18s transform, .18s box-shadow;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: 0 18px 34px rgba(255,77,136,.28); }
+    .btn.secondary{
+      background: rgba(255,255,255,.8);
+      color: var(--muted);
+      border:1px solid rgba(255,77,136,.18);
+      box-shadow: 0 10px 20px rgba(0,0,0,.04);
+    }
+
+    /* ---------- Gift + pass ---------- */
+    .ticketStage{
+      display:grid;
+      place-items:center;
+      padding: 6px 0 4px;
+      min-height: 460px;
+      position:relative;
+    }
+
+    .gift{
+      width: 220px;
+      height: 220px;
+      position:relative;
+      border:0;
+      background:transparent;
+      cursor:pointer;
+      filter: drop-shadow(0 18px 35px rgba(255,77,136,.20));
+      transform-origin: 50% 70%;
+      animation: giftWiggle 2.2s ease-in-out infinite;
+    }
+    @keyframes giftWiggle{
+      0%,100%{ transform: rotate(0deg) translateY(0); }
+      25%{ transform: rotate(-2deg) translateY(-1px); }
+      50%{ transform: rotate(2deg) translateY(0); }
+      75%{ transform: rotate(-1deg) translateY(-1px); }
+    }
+
+    .giftBox{
+      position:absolute; inset: 44px 18px 18px 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.90);
+      border:1px solid rgba(255,77,136,.18);
+    }
+    .giftLid{
+      position:absolute; inset: 18px 10px 146px 10px;
+      border-radius: 18px;
+      background: linear-gradient(90deg, rgba(255,77,136,.18), rgba(255,119,168,.16));
+      border:1px solid rgba(255,77,136,.20);
+      transform-origin: 50% 100%;
+      transition: transform .55s cubic-bezier(.2,.9,.2,1), translate .55s cubic-bezier(.2,.9,.2,1), opacity .3s;
+    }
+    .giftRibbon{
+      position:absolute; inset: 44px 18px 18px 18px;
+      border-radius: 18px;
+      background:
+        linear-gradient(90deg, transparent 42%, rgba(255,77,136,.28) 42%, rgba(255,77,136,.28) 58%, transparent 58%),
+        linear-gradient(0deg, transparent 42%, rgba(255,77,136,.22) 42%, rgba(255,77,136,.22) 58%, transparent 58%);
+      pointer-events:none;
+    }
+    .giftTag{
+      position:absolute;
+      left:50%;
+      top: 0;
+      transform: translateX(-50%);
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,77,136,.18);
+      color: var(--muted);
+      font-weight: 1000;
+      font-size: 12px;
+      letter-spacing:.04em;
+    }
+
+    .ticketStage.open .gift{ animation:none; cursor:default; }
+    .ticketStage.open .giftLid{
+      transform: rotateX(65deg);
+      translate: 0 -18px;
+      opacity: 0;
+    }
+
+    .boardingWrap{
+      width:min(720px, 100%);
+      margin-top: 18px;
+      display:none;
+    }
+    .ticketStage.open .boardingWrap{
+      display:block;
+      animation: passIn .55s cubic-bezier(.2,.9,.2,1) forwards;
+    }
+    @keyframes passIn{
+      from{ opacity:0; transform: translateY(14px) scale(.98); }
+      to{ opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    /* ---------- Boarding pass ---------- */
+    .boardingPass{
+      position:relative;
+      border-radius: 18px;
+      overflow:hidden;
+      border: 1px solid rgba(255,77,136,.22);
+      background:
+        radial-gradient(500px 140px at 20% 0%, rgba(255,77,136,.14), transparent 55%),
+        radial-gradient(420px 160px at 90% 30%, rgba(255,119,168,.12), transparent 55%),
+        rgba(255,255,255,.88);
+      box-shadow: 0 18px 45px rgba(255,77,136,.16);
+    }
+    .boardingPass::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius:18px;
+      box-shadow: 0 0 0 2px rgba(255,77,136,.08);
+      pointer-events:none;
+    }
+    .boardingPass::after{
+      content:"♥";
+      position:absolute;
+      top:10px; right:14px;
+      font-size:16px;
+      color: rgba(255,77,136,.55);
+      transform: rotate(12deg);
+      pointer-events:none;
+    }
+
+    .bpTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding: 14px 16px;
+      background: linear-gradient(90deg, rgba(255,77,136,.18), rgba(255,119,168,.12));
+      border-bottom: 1px solid rgba(255,77,136,.16);
+      position:relative;
+    }
+    .bpTop::after{
+      content:"";
+      position:absolute;
+      left:16px; right:16px;
+      bottom:-1px;
+      height:1px;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(255,77,136,.22) 0 8px,
+        transparent 8px 14px
+      );
+      opacity:.55;
+    }
+    .bpAirline{ font-weight: 1000; color: var(--pink); letter-spacing:.02em; }
+    .bpType{ font-weight: 900; color: var(--muted); }
+
+    .bpGrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px 12px;
+      padding: 14px 16px 6px;
+    }
+    .bpField{
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(255,77,136,.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .bpLabel{
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing:.05em;
+    }
+    .bpValue{
+      font-size: 16px;
+      font-weight: 1000;
+      margin-top: 2px;
+      color: var(--ink);
+    }
+
+    .bpBottom{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap: 12px;
+      padding: 10px 16px 16px;
+    }
+    .bpNote{
+      font-weight: 900;
+      color: var(--ink);
+    }
+    .bpTiny{
+      display:block;
+      margin-top: 4px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .bpQR{
+      width: 86px;
+      height: 86px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      opacity:.55;
+    }
+    .qrBlock{
+      background: rgba(58,44,52,.35);
+      border-radius: 6px;
+    }
+
+    /* Print only the pass nicely */
+    @media print{
+      body{ background:white !important; }
+      header, .hint, .ctaRow, .gift{ display:none !important; }
+      .panel{ box-shadow:none !important; border:none !important; background:white !important; padding:0 !important; }
+      .boardingPass{ box-shadow:none !important; border: 1px solid #ddd !important; }
+    }
+
+    @media (max-width:520px){
+      .panel{ padding:14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>March 7th in Rome ✨</h1>
+      <p class="subtitle">Tap the gift. The boarding pass will appear.</p>
+    </header>
+
+    <section class="panel">
+      <p class="hint">Tap the gift to reveal your boarding pass ✈️💘</p>
+
+      <div class="ticketStage" id="ticketStage">
+        <button class="gift" id="giftBtn" type="button" aria-label="Open gift">
+          <span class="giftLid"></span>
+          <span class="giftBox"></span>
+          <span class="giftRibbon"></span>
+          <span class="giftTag">tap me</span>
+        </button>
+
+        <div class="boardingWrap" id="boardingWrap" aria-hidden="true">
+          <div class="boardingPass" id="boardingPass">
+            <div class="bpTop">
+              <div class="bpAirline">Halley’s Comet ✨</div>
+              <div class="bpType">BOARDING PASS</div>
+            </div>
+
+            <div class="bpGrid">
+              <div class="bpField">
+                <div class="bpLabel">Passenger</div>
+                <div class="bpValue" id="bpPassenger">Milana</div>
+              </div>
+              <div class="bpField">
+                <div class="bpLabel">Flight</div>
+                <div class="bpValue" id="bpFlight">Halley’s Comet</div>
+              </div>
+
+              <div class="bpField">
+                <div class="bpLabel">From</div>
+                <div class="bpValue" id="bpFrom">Wherever you are</div>
+              </div>
+              <div class="bpField">
+                <div class="bpLabel">To</div>
+                <div class="bpValue" id="bpTo">Our Next Chapter</div>
+              </div>
+
+              <div class="bpField">
+                <div class="bpLabel">Date</div>
+                <div class="bpValue" id="bpDate">07 MAR</div>
+              </div>
+              <div class="bpField">
+                <div class="bpLabel">Boarding</div>
+                <div class="bpValue" id="bpBoarding">All day 💗</div>
+              </div>
+
+              <div class="bpField">
+                <div class="bpLabel">Gate</div>
+                <div class="bpValue" id="bpGate">ROME</div>
+              </div>
+              <div class="bpField">
+                <div class="bpLabel">Seat</div>
+                <div class="bpValue" id="bpSeat">0703</div>
+              </div>
+            </div>
+
+            <div class="bpBottom">
+              <div class="bpNote">
+                Final call for the love of my life.
+                <span class="bpTiny">No destination — just us.</span>
+              </div>
+              <div class="bpQR" aria-hidden="true">
+                <div class="qrBlock"></div><div class="qrBlock"></div><div class="qrBlock"></div>
+                <div class="qrBlock"></div><div class="qrBlock"></div><div class="qrBlock"></div>
+                <div class="qrBlock"></div><div class="qrBlock"></div><div class="qrBlock"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ctaRow">
+            <button class="btn secondary" id="resetTicket" type="button">Reset</button>
+            <button class="btn" id="printTicket" type="button">Print / Save</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const ticketStage = document.getElementById("ticketStage");
+    const giftBtn = document.getElementById("giftBtn");
+    const boardingWrap = document.getElementById("boardingWrap");
+    const resetTicket = document.getElementById("resetTicket");
+    const printTicket = document.getElementById("printTicket");
+
+    function openGift(){
+      ticketStage.classList.add("open");
+      boardingWrap.setAttribute("aria-hidden", "false");
+      giftBtn.disabled = true;
+    }
+
+    function resetGift(){
+      ticketStage.classList.remove("open");
+      boardingWrap.setAttribute("aria-hidden", "true");
+      giftBtn.disabled = false;
+    }
+
+    giftBtn.addEventListener("click", openGift);
+    resetTicket.addEventListener("click", resetGift);
+
+    printTicket.addEventListener("click", () => {
+      if (!ticketStage.classList.contains("open")) openGift();
+      window.print();
+    });
+  </script>
+</body>
+</html>
